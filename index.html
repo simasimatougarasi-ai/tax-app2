@@ -2,43 +2,129 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-      <title>あなたの収入、税金でどれくらい引かれてる？【ﾌﾘｰﾗﾝｽ版】</title>
-    <div class="disclaimer">※入力データは一切収集されません。</div>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フリーランス用：税金・社会保険料 可視化アプリ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f7f9fc; padding: 20px; display: flex; justify-content: center; }
-        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; max-width: 900px; width: 100%; }
-        h1 { text-align: center; font-size: 1.3rem; color: #2c3e50; margin-bottom: 20px; }
-        .section-title { font-size: 1.1rem; border-bottom: 2px solid #27ae60; padding-bottom: 5px; margin: 20px 0 15px; color: #27ae60; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-        label { font-weight: bold; font-size: 0.8rem; }
-        input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background-color: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 25px; font-size: 1.1rem; }
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 { text-align: center; font-size: 1.5rem; color: #2c3e50; margin-bottom: 20px; }
+        .section-title { font-size: 1.2rem; border-bottom: 2px solid #27ae60; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .input-group { margin-bottom: 5px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; }
+        .summary-box { background-color: #eafaf1; padding: 15px; border-radius: 8px; margin-top: 15px; font-weight: bold; text-align: right; }
+        button { width: 100%; padding: 15px; background-color: #27ae60; color: #fff; border: none; border-radius: 5px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 25px; }
+        button:hover { background-color: #219150; }
         .disclaimer { text-align: center; color: #e74c3c; font-size: 6pt; margin-top: 10px; }
         .result-section { display: flex; flex-wrap: wrap; margin-top: 30px; gap: 20px; }
-        .chart-container { flex: 1 1 300px; height: 300px; }
+        .chart-container { flex: 1 1 300px; position: relative; }
         .details-container { flex: 1 1 300px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; }
-        .detail-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; border-bottom: 1px solid #eee; }
+        .detail-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 0.95rem; }
+        .total-display-box { text-align: center; font-weight: bold; color: #e74c3c; margin-top: 25px; padding-top: 15px; border-top: 2px dashed #ddd; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>フリーランス：詳細収支可視化アプリ</h1>
-
-    <div class="section-title">事業経費（月額）</div>
+    <h1>フリーランスの所得と税金可視化</h1>
+    
+    <div class="section-title">年間収入・経費</div>
     <div class="input-grid">
-        <div><label>家賃</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>光熱費</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>通信費</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>移動費</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>食費</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>会議費</label><input type="number" class="biz" oninput="calculate()"></div>
-        <div><label>機材費</label><input type="number" class="biz" oninput="calculate()"></div>
+        <div class="input-group">
+            <label for="annualRevenue">年間売上（円）</label>
+            <input type="number" id="annualRevenue" placeholder="例: 5000000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="annualExpense">年間経費（円）</label>
+            <input type="number" id="annualExpense" placeholder="例: 1000000" oninput="calculateLiveTotals()">
+        </div>
     </div>
+    <div class="summary-box">
+        自動計算 ＞ 所得（売上 - 経費）: <span id="liveIncome">0</span> 円
+    </div>
+    
+    <button onclick="calculateTaxes()">計算してグラフを表示</button>
+    <div class="disclaimer">※入力データは一切収集されません</div>
 
-    <div class="section-title">生活支出（月額・税込）</div>
-    <div class="input-grid">
-        <div><label>家賃</label><input type="number" class="priv" oninput="calculate()"></div>
-        <div><label>光熱費</label><input type="
+    <div class="result-section" id="resultSection" style="display: none;">
+        <div class="chart-container"><canvas id="taxChart"></canvas></div>
+        <div class="details-container" id="detailsList"></div>
+    </div>
+</div>
+
+<script>
+    let taxChartInstance = null;
+
+    function calculateLiveTotals() {
+        const rev = parseInt(document.getElementById('annualRevenue').value) || 0;
+        const exp = parseInt(document.getElementById('annualExpense').value) || 0;
+        document.getElementById('liveIncome').textContent = (rev - exp > 0 ? rev - exp : 0).toLocaleString();
+    }
+
+    function calculateTaxes() {
+        const revenue = parseInt(document.getElementById('annualRevenue').value) || 0;
+        const expenses = parseInt(document.getElementById('annualExpense').value) || 0;
+        const income = revenue - expenses;
+
+        if (income <= 0) { alert('有効な所得を入力してください。'); return; }
+
+        // 概算計算（簡易）
+        const socialInsurance = Math.floor(income * 0.15); // 国保＋年金想定
+        const taxable = income - socialInsurance - 480000; // 基礎控除
+        const incomeTax = taxable > 0 ? Math.floor(taxable * 0.1) : 0; // 簡易税率10%
+        const residentTax = taxable > 0 ? Math.floor(taxable * 0.1) : 0; // 住民税10%
+        
+        const totalTax = socialInsurance + incomeTax + residentTax;
+        const remaining = income - totalTax;
+
+        updateUI(revenue, expenses, socialInsurance, incomeTax, residentTax, remaining, totalTax);
+        drawChart(socialInsurance, incomeTax, residentTax, remaining);
+    }
+
+    function updateUI(rev, exp, soc, inc, res, rem, total) {
+        document.getElementById('resultSection').style.display = 'flex';
+        document.getElementById('detailsList').innerHTML = `
+            <h3>内訳</h3>
+            <div class="detail-item"><span>年間売上:</span> <span>${rev.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>経費:</span> <span>${exp.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>社会保険料(概算):</span> <span>${soc.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>所得税:</span> <span>${inc.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>住民税:</span> <span>${res.toLocaleString()} 円</span></div>
+            <div class="total-display-box">
+                <div>手残り可能金額:</div>
+                <div style="font-size: 1.5rem;">${rem.toLocaleString()} 円</div>
+            </div>
+        `;
+    }
+
+    function drawChart(soc, inc, res, rem) {
+        const ctx = document.getElementById('taxChart').getContext('2d');
+        if (taxChartInstance) taxChartInstance.destroy();
+        taxChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['社会保険料', '所得税', '住民税', '手残り'],
+                datasets: [{ data: [soc, inc, res, rem], backgroundColor: ['#3498db', '#f39c12', '#f1c40f', '#2ecc71'] }]
+            }
+        });
+    }
+</script>
+</body>
+</html>
