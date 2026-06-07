@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>あなたの収入、税金と社会保険料でどれくらい引かれてる？【ﾌﾘｰﾗﾝｽ版】</title>
+    <title>フリーランス版：月額入力・年額可視化アプリ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f7f9fc; padding: 20px; display: flex; justify-content: center; }
@@ -13,6 +12,7 @@
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
         input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .summary-box { background-color: #eafaf1; padding: 10px; border-radius: 5px; margin-top: 10px; text-align: right; font-weight: bold; }
         button { width: 100%; padding: 15px; background-color: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 25px; font-size: 1.1rem; }
         .disclaimer { text-align: center; color: #e74c3c; font-size: 6pt; margin-top: 10px; }
         .result-section { display: flex; flex-wrap: wrap; margin-top: 30px; gap: 20px; }
@@ -24,24 +24,26 @@
 <body>
 
 <div class="container">
-    <h1>フリーランス：所得と税金可視化</h1>
+    <h1>フリーランス：月額入力・年間収支可視化</h1>
     
-    <div class="section-title">事業収支</div>
+    <div class="section-title">事業収支（月額）</div>
     <div class="input-grid">
-        <div><label>年間売上（円）</label><input type="number" id="revenue" placeholder="5000000" oninput="calculate()"></div>
-        <div><label>年間必要経費（円）</label><input type="number" id="expenses" placeholder="1000000" oninput="calculate()"></div>
+        <div><label>月間売上（円）</label><input type="number" id="mRevenue" oninput="calculate()"></div>
+        <div><label>月間必要経費（円）</label><input type="number" id="mExpenses" oninput="calculate()"></div>
     </div>
 
-    <div class="section-title">生活支出（税込）</div>
+    <div class="section-title">生活支出（月額・税込）</div>
     <div class="input-grid">
-        <div><label>食費</label><input type="number" id="food" placeholder="600000" oninput="calculate()"></div>
-        <div><label>光熱費</label><input type="number" id="util" placeholder="200000" oninput="calculate()"></div>
-        <div><label>交際・娯楽</label><input type="number" id="hobby" placeholder="300000" oninput="calculate()"></div>
-        <div><label>その他</label><input type="number" id="other" placeholder="100000" oninput="calculate()"></div>
+        <div><label>食費</label><input type="number" id="mFood" oninput="calculate()"></div>
+        <div><label>光熱費</label><input type="number" id="mUtil" oninput="calculate()"></div>
+        <div><label>交際・娯楽</label><input type="number" id="mHobby" oninput="calculate()"></div>
+        <div><label>その他</label><input type="number" id="mOther" oninput="calculate()"></div>
     </div>
+
+    <div class="summary-box">年間推定事業所得: <span id="annualBizIncome">0</span> 円</div>
 
     <button onclick="calculate()">計算して表示</button>
-    <div class="disclaimer">※入力データは一切収集されません。結果は簡易的な目安です。</div>
+    <div class="disclaimer">※入力データは一切収集されません。</div>
 
     <div class="result-section" id="resultSection" style="display: none;">
         <div class="chart-container"><canvas id="taxChart"></canvas></div>
@@ -53,33 +55,38 @@
     let taxChartInstance = null;
 
     function calculate() {
-        const rev = parseInt(document.getElementById('revenue').value) || 0;
-        const exp = parseInt(document.getElementById('expenses').value) || 0;
-        const lifeSpending = (parseInt(document.getElementById('food').value) || 0) +
-                             (parseInt(document.getElementById('util').value) || 0) +
-                             (parseInt(document.getElementById('hobby').value) || 0) +
-                             (parseInt(document.getElementById('other').value) || 0);
+        // 月額取得
+        const mRev = parseInt(document.getElementById('mRevenue').value) || 0;
+        const mExp = parseInt(document.getElementById('mExpenses').value) || 0;
+        const mSpending = (parseInt(document.getElementById('mFood').value) || 0) +
+                          (parseInt(document.getElementById('mUtil').value) || 0) +
+                          (parseInt(document.getElementById('mHobby').value) || 0) +
+                          (parseInt(document.getElementById('mOther').value) || 0);
 
-        const bizIncome = Math.max(0, rev - exp); // 事業所得
-        const consTax = Math.floor(lifeSpending * (10 / 110)); // 生活費に含まれる消費税相当
-        
-        // 簡易税金計算（社会保険料 約15%、所得税・住民税 各約10%）
+        // 年額換算
+        const rev = mRev * 12;
+        const exp = mExp * 12;
+        const lifeSpending = mSpending * 12;
+
+        const bizIncome = Math.max(0, rev - exp);
+        document.getElementById('annualBizIncome').textContent = bizIncome.toLocaleString();
+
+        const consTax = Math.floor(lifeSpending * (10 / 110)); 
         const soc = Math.floor(bizIncome * 0.15);
         const taxable = Math.max(0, bizIncome - soc - 480000);
         const incomeTax = Math.floor(taxable * 0.1);
         const resTax = Math.floor(bizIncome * 0.1);
-        
         const remain = bizIncome - soc - incomeTax - resTax;
 
         document.getElementById('resultSection').style.display = 'flex';
         document.getElementById('detailsList').innerHTML = `
-            <h3>年間収支結果</h3>
+            <h3>年間収支（換算）</h3>
             <div class="detail-item"><span>事業所得:</span> <span>${bizIncome.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>社会保険料(概算):</span> <span>${soc.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>所得税(概算):</span> <span>${incomeTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>住民税(概算):</span> <span>${resTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>生活費に含まれる消費税:</span> <span>${consTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><strong>手残り(事業所得-税等):</strong> <strong>${remain.toLocaleString()} 円</strong></div>
+            <div class="detail-item"><span>所得税:</span> <span>${incomeTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>住民税:</span> <span>${resTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>生活費消費税分:</span> <span>${consTax.toLocaleString()} 円</span></div>
+            <div class="detail-item"><strong>手残り資金:</strong> <strong>${remain.toLocaleString()} 円</strong></div>
         `;
 
         const ctx = document.getElementById('taxChart').getContext('2d');
@@ -87,7 +94,7 @@
         taxChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['社会保険料', '所得税', '住民税', '消費税(生活費分)', '手残り資金'],
+                labels: ['社会保険料', '所得税', '住民税', '消費税(生活費分)', '手残り'],
                 datasets: [{ data: [soc, incomeTax, resTax, consTax, remain], backgroundColor: ['#3498db', '#f39c12', '#f1c40f', '#e74c3c', '#2ecc71'] }]
             }
         });
