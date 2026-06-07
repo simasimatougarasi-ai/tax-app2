@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>税金・社会保険料 可視化アプリ【フリーランス版】</title>
+    <title>税金・社会保険料 可視化アプリ【フリーランス詳細版】</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -65,6 +65,7 @@
             margin-top: 15px;
             font-weight: bold;
             text-align: right;
+            line-height: 1.5;
         }
         button {
             width: 100%;
@@ -142,15 +143,43 @@
     <div class="disclaimer">※入力データは一切収集されません。また、詳細な税額や社会保険料は家族構成や住んでいる自治体によって変動するため、『これだけしか納めていない』と捉えるか『こんなに納めてるのか』と捉えるか、あくまで目安として参考にしてください。<br>
 このシミュレーション結果は、日々の家計管理や将来の資金計画を立てる上での指標として、AIによるとわりと信頼できる内容のようです。もしより厳密な金額が必要な場合は、確定申告書の控えを確認するか、税理士や自治体の窓口へご相談することをおすすめします。</div>
     
-    <div class="section-title">事業収入・経費</div>
+    <div class="section-title">事業収入・経費（月額）</div>
     <div class="input-grid">
         <div class="input-group">
-            <label for="annualSales">年間売上（総収入・円）</label>
-            <input type="number" id="annualSales" placeholder="例: 6000000" step="100000" oninput="calculateLiveTotals()">
+            <label for="monthlySales">月間売上（収入・円）</label>
+            <input type="number" id="monthlySales" placeholder="例: 500000" step="50000" oninput="calculateLiveTotals()">
         </div>
         <div class="input-group">
-            <label for="annualExpensesBiz">年間事業経費（円）</label>
-            <input type="number" id="annualExpensesBiz" placeholder="例: 1500000" step="50000" oninput="calculateLiveTotals()">
+            <label for="bizRent">家賃（事業按分分・円）</label>
+            <input type="number" id="bizRent" placeholder="例: 30000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizUtilities">光熱費（事業按分分・円）</label>
+            <input type="number" id="bizUtilities" placeholder="例: 5000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizTelecom">通信費（事業按分分・円）</label>
+            <input type="number" id="bizTelecom" placeholder="例: 5000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizTransport">移動費（円）</label>
+            <input type="number" id="bizTransport" placeholder="例: 10000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizEntertainment">会議交際費（円）</label>
+            <input type="number" id="bizEntertainment" placeholder="例: 15000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizEquipment">機材費（円）</label>
+            <input type="number" id="bizEquipment" placeholder="例: 20000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizMaterials">資料費（円）</label>
+            <input type="number" id="bizMaterials" placeholder="例: 5000" oninput="calculateLiveTotals()">
+        </div>
+        <div class="input-group">
+            <label for="bizOther">その他（円）</label>
+            <input type="number" id="bizOther" placeholder="例: 10000" oninput="calculateLiveTotals()">
         </div>
         <div class="input-group">
             <label for="blueDeduction">青色申告特別控除</label>
@@ -163,46 +192,49 @@
         </div>
     </div>
     <div class="summary-box">
-        自動計算 ＞ 差し引き事業所得: <span id="liveNetIncome">0</span> 円
+        自動計算 ＞ 年間換算売上: <span id="liveAnnualSales">0</span> 円 / 年間事業経費: <span id="liveAnnualExpensesBiz">0</span> 円<br>
+        差し引き事業所得（控除適用後）: <span id="liveNetIncome">0</span> 円
     </div>
 
     <div class="section-title">月々の生活費・貯金（プライベート分）</div>
     <div class="input-grid">
         <div class="input-group">
             <label for="rent">家賃（プライベート負担分）</label>
-            <input type="number" id="rent" class="expense-input" placeholder="例: 80000" oninput="calculateLiveTotals()">
+            <input type="number" id="rent" placeholder="例: 50000" oninput="calculateLiveTotals()">
         </div>
         <div class="input-group">
             <label for="utilities">光熱費（プライベート負担分）</label>
-            <input type="number" id="utilities" class="expense-input" placeholder="例: 15000" oninput="calculateLiveTotals()">
+            <input type="number" id="utilities" placeholder="例: 10000" oninput="calculateLiveTotals()">
         </div>
         <div class="input-group">
             <label for="telecom">通信費（プライベート負担分）</label>
-            <input type="number" id="telecom" class="expense-input" placeholder="例: 10000" oninput="calculateLiveTotals()">
+            <input type="number" id="telecom" placeholder="例: 5000" oninput="calculateLiveTotals()">
         </div>
         <div class="input-group">
-            <label for="transport">移動費（交通費・ガソリン）</label>
-            <input type="number" id="transport" class="expense-input" placeholder="例: 10000" oninput="calculateLiveTotals()">
+            <label for="transport">移動費（プライベート負担分）</label>
+            <input type="number" id="transport" placeholder="例: 5000" oninput="calculateLiveTotals()">
         </div>
-        <div class="input-group">
-            <label for="food">食費</label>
-            <input type="number" id="food" class="expense-input" placeholder="例: 50000" oninput="calculateLiveTotals()">
-        </div>
-        <div class="input-group">
-            <label for="social">交際費</label>
-            <input type="number" id="social" class="expense-input" placeholder="例: 20000" oninput="calculateLiveTotals()">
-        </div>
-        <div class="input-group">
-            <label for="hobby">趣味・娯楽費</label>
-            <input type="number" id="hobby" class="expense-input" placeholder="例: 20000" oninput="calculateLiveTotals()">
-        </div>
-        <div class="input-group">
-            <label for="savings">月々の貯金</label>
-            <input type="number" id="savings" class="expense-input" placeholder="例: 50000" oninput="calculateLiveTotals()">
-        </div>
-        <div class="input-group">
-            <label for="other">その他</label>
-            <input type="number" id="other" class="expense-input" placeholder="例: 10000" oninput="calculateLiveTotals()">
+        <div class="input-grid" style="display: contents;">
+            <div class="input-group">
+                <label for="food">食費</label>
+                <input type="number" id="food" placeholder="例: 50000" oninput="calculateLiveTotals()">
+            </div>
+            <div class="input-group">
+                <label for="social">交際費</label>
+                <input type="number" id="social" placeholder="例: 10000" oninput="calculateLiveTotals()">
+            </div>
+            <div class="input-group">
+                <label for="hobby">趣味・娯楽費</label>
+                <input type="number" id="hobby" placeholder="例: 20000" oninput="calculateLiveTotals()">
+            </div>
+            <div class="input-group">
+                <label for="savings">月々の貯金</label>
+                <input type="number" id="savings" placeholder="例: 50000" oninput="calculateLiveTotals()">
+            </div>
+            <div class="input-group">
+                <label for="other">その他</label>
+                <input type="number" id="other" placeholder="例: 10000" oninput="calculateLiveTotals()">
+            </div>
         </div>
     </div>
     <div class="summary-box">
@@ -225,14 +257,30 @@
 <script>
     let taxChartInstance = null;
 
-    function calculateLiveTotals() {
-        const annualSales = parseInt(document.getElementById('annualSales').value) || 0;
-        const annualExpensesBiz = parseInt(document.getElementById('annualExpensesBiz').value) || 0;
+    // ビジネス関連の数値を集計する関数
+    function getBizData() {
+        const monthlySales = parseInt(document.getElementById('monthlySales').value) || 0;
+        const annualSales = monthlySales * 12;
+
+        const bizIds = ['bizRent', 'bizUtilities', 'bizTelecom', 'bizTransport', 'bizEntertainment', 'bizEquipment', 'bizMaterials', 'bizOther'];
+        let monthlyExpensesBiz = 0;
+        bizIds.forEach(id => {
+            monthlyExpensesBiz += parseInt(document.getElementById(id).value) || 0;
+        });
+        const annualExpensesBiz = monthlyExpensesBiz * 12;
         const blueDeduction = parseInt(document.getElementById('blueDeduction').value) || 0;
-        
+
         let netIncome = annualSales - annualExpensesBiz - blueDeduction;
         if (netIncome < 0) netIncome = 0;
-        document.getElementById('liveNetIncome').textContent = netIncome.toLocaleString();
+
+        return { annualSales, annualExpensesBiz, netIncome };
+    }
+
+    function calculateLiveTotals() {
+        const biz = getBizData();
+        document.getElementById('liveAnnualSales').textContent = biz.annualSales.toLocaleString();
+        document.getElementById('liveAnnualExpensesBiz').textContent = biz.annualExpensesBiz.toLocaleString();
+        document.getElementById('liveNetIncome').textContent = biz.netIncome.toLocaleString();
 
         const expenses = ['rent', 'utilities', 'telecom', 'transport', 'food', 'social', 'hobby', 'other'];
         let monthlyExpenses = 0;
@@ -243,17 +291,12 @@
     }
 
     function calculateTaxes() {
-        const annualSales = parseInt(document.getElementById('annualSales').value) || 0;
-        const annualExpensesBiz = parseInt(document.getElementById('annualExpensesBiz').value) || 0;
-        const blueDeduction = parseInt(document.getElementById('blueDeduction').value) || 0;
+        const biz = getBizData();
 
-        if (annualSales === 0) {
-            alert('年間売上を入力してください。');
+        if (biz.annualSales === 0) {
+            alert('月間売上を入力してください。');
             return;
         }
-
-        let netIncome = annualSales - annualExpensesBiz - blueDeduction;
-        if (netIncome < 0) netIncome = 0;
 
         // 生活費の取得
         const rent = parseInt(document.getElementById('rent').value) || 0;
@@ -271,18 +314,16 @@
         const annualTaxableSpending = (utilities + telecom + transport + food + social + hobby + other) * 12;
         const annualSpending = annualRent + annualTaxableSpending;
 
-        // 【フリーランス用社会保険料計算（国民健康保険＋国民年金）】
-        // 国民年金：一律年間 約210,000円として計算
-        const nationalPension = 210000;
-        // 国民健康保険：自治体によるが、所得ベースで約9.5%（上限104万円）として簡易概算
-        const kokuhoBase = annualSales - annualExpensesBiz;
+        // 【フリーランス用社会保険料計算】
+        const nationalPension = 210000; // 国民年金一律
+        const kokuhoBase = biz.annualSales - biz.annualExpensesBiz;
         let nationalHealthInsurance = Math.floor(Math.max(0, kokuhoBase - 430000) * 0.095);
         if (nationalHealthInsurance > 1040000) nationalHealthInsurance = 1040000;
         
         const socialInsurance = nationalPension + nationalHealthInsurance;
 
-        // 所得税計算（基礎控除48万）
-        let taxableIncomeTax = netIncome - socialInsurance - 480000;
+        // 所得税
+        let taxableIncomeTax = biz.netIncome - socialInsurance - 480000;
         if (taxableIncomeTax < 0) taxableIncomeTax = 0;
 
         let incomeTax = 0;
@@ -294,29 +335,29 @@
         else incomeTax = taxableIncomeTax * 0.40 - 2796000;
         incomeTax = Math.floor(incomeTax);
 
-        // 住民税計算（基礎控除43万、税率10% + 均等割5000円）
-        let taxableResidentTax = netIncome - socialInsurance - 430000;
+        // 住民税
+        let taxableResidentTax = biz.netIncome - socialInsurance - 430000;
         if (taxableResidentTax < 0) taxableResidentTax = 0;
         const residentTax = taxableResidentTax > 0 ? Math.floor(taxableResidentTax * 0.10) + 5000 : 0;
 
-        // 【個人事業税】（事業主控除290万円、主要業種の税率5%で計算）
+        // 個人事業税
         let businessTax = 0;
-        const bizTaxBase = annualSales - annualExpensesBiz - socialInsurance;
+        const bizTaxBase = biz.annualSales - biz.annualExpensesBiz - socialInsurance;
         if (bizTaxBase > 2900000) {
             businessTax = Math.floor((bizTaxBase - 2900000) * 0.05);
         }
 
-        // 消費税（私的生活費にかかるもの）
+        // 消費税（プライベート分）
         const consumptionTax = Math.floor(annualTaxableSpending * (10 / 110));
         const pureSpending = annualSpending - consumptionTax;
         
-        // 未割り当ての余り
-        let remainingMoney = annualSales - annualExpensesBiz - socialInsurance - incomeTax - residentTax - businessTax - annualSpending - annualSavings;
+        // 残金
+        let remainingMoney = biz.annualSales - biz.annualExpensesBiz - socialInsurance - incomeTax - residentTax - businessTax - annualSpending - annualSavings;
         if (remainingMoney < 0) remainingMoney = 0;
 
         const totalTaxes = socialInsurance + incomeTax + residentTax + businessTax + consumptionTax;
 
-        updateUI(annualSales, annualExpensesBiz, socialInsurance, incomeTax, residentTax, businessTax, consumptionTax, pureSpending, annualSavings, remainingMoney, totalTaxes);
+        updateUI(biz.annualSales, biz.annualExpensesBiz, socialInsurance, incomeTax, residentTax, businessTax, consumptionTax, pureSpending, annualSavings, remainingMoney, totalTaxes);
         drawChart(socialInsurance, incomeTax, residentTax, businessTax, consumptionTax, pureSpending, annualSavings, remainingMoney);
     }
 
@@ -327,7 +368,7 @@
         const detailsHtml = `
             <h3>内訳（年間概算）</h3>
             <div class="detail-item"><span>年間総売上:</span> <span>${sales.toLocaleString()} 円</span></div>
-            <div class="detail-item"><span>事業経費:</span> <span>${expBiz.toLocaleString()} 円</span></div>
+            <div class="detail-item"><span>年間事業経費:</span> <span>${expBiz.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>社会保険料(国保・国年):</span> <span>${soc.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>所得税:</span> <span>${incTax.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>住民税:</span> <span>${resTax.toLocaleString()} 円</span></div>
@@ -349,7 +390,7 @@
         国民健康保険料は所得や世帯人数、自治体の料率によって非常に大きく変動します。
         <br><br>
         <b>個人事業税について:</b><br>
-        法定業種（多くのフリーランス・個人事業主が該当）で、経費等を引いた所得が年間290万円を超えた場合に課税されます（業種により3〜5%）。
+        法定業種で、経費等を引いた所得が年間290万円を超えた場合に課税されます（業種により3〜5%）。
         <br><br>
         <b>事業としての消費税:</b><br>
         本ツールでは「生活費にかかった消費税」のみを可視化しています。インボイス登録等で課税事業者になっている場合の「事業としての消費税」は別途考慮する必要があります。</div>
