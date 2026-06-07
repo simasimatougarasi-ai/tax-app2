@@ -2,45 +2,52 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>フリーランス版：月額入力・年額可視化アプリ</title>
+    <title>フリーランス版：詳細収支可視化アプリ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f7f9fc; padding: 20px; display: flex; justify-content: center; }
-        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; max-width: 800px; width: 100%; }
-        h1 { text-align: center; font-size: 1.4rem; color: #2c3e50; margin-bottom: 20px; }
-        .section-title { font-size: 1.1rem; border-bottom: 2px solid #27ae60; padding-bottom: 5px; margin: 20px 0 15px; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .summary-box { background-color: #eafaf1; padding: 10px; border-radius: 5px; margin-top: 10px; text-align: right; font-weight: bold; }
-        button { width: 100%; padding: 15px; background-color: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 25px; font-size: 1.1rem; }
+        .container { background-color: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 30px; max-width: 900px; width: 100%; }
+        h1 { text-align: center; font-size: 1.3rem; color: #2c3e50; margin-bottom: 20px; }
+        .section-title { font-size: 1.1rem; border-bottom: 2px solid #27ae60; padding-bottom: 5px; margin: 20px 0 15px; color: #27ae60; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+        label { font-weight: bold; font-size: 0.8rem; }
+        input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; font-weight: bold; }
         .disclaimer { text-align: center; color: #e74c3c; font-size: 6pt; margin-top: 10px; }
         .result-section { display: flex; flex-wrap: wrap; margin-top: 30px; gap: 20px; }
         .chart-container { flex: 1 1 300px; height: 300px; }
         .details-container { flex: 1 1 300px; background-color: #f8f9fa; padding: 20px; border-radius: 8px; }
-        .detail-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; border-bottom: 1px solid #eee; }
+        .detail-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>フリーランス：月額入力・年間収支可視化</h1>
-    
-    <div class="section-title">事業収支（月額）</div>
+
+    <div class="section-title">事業必要経費（月額）</div>
     <div class="input-grid">
-        <div><label>月間売上（円）</label><input type="number" id="mRevenue" oninput="calculate()"></div>
-        <div><label>月間必要経費（円）</label><input type="number" id="mExpenses" oninput="calculate()"></div>
+        <div><label>家賃</label><input type="number" id="bRent" class="biz" oninput="calculate()"></div>
+        <div><label>光熱費</label><input type="number" id="bUtil" class="biz" oninput="calculate()"></div>
+        <div><label>通信費</label><input type="number" id="bTel" class="biz" oninput="calculate()"></div>
+        <div><label>移動費</label><input type="number" id="bTrans" class="biz" oninput="calculate()"></div>
+        <div><label>食費（事業）</label><input type="number" id="bFood" class="biz" oninput="calculate()"></div>
+        <div><label>会議費</label><input type="number" id="bMeet" class="biz" oninput="calculate()"></div>
+        <div><label>機材費</label><input type="number" id="bEquip" class="biz" oninput="calculate()"></div>
     </div>
 
     <div class="section-title">生活支出（月額・税込）</div>
     <div class="input-grid">
-        <div><label>食費</label><input type="number" id="mFood" oninput="calculate()"></div>
-        <div><label>光熱費</label><input type="number" id="mUtil" oninput="calculate()"></div>
-        <div><label>交際・娯楽</label><input type="number" id="mHobby" oninput="calculate()"></div>
-        <div><label>その他</label><input type="number" id="mOther" oninput="calculate()"></div>
+        <div><label>家賃</label><input type="number" id="pRent" class="priv" oninput="calculate()"></div>
+        <div><label>光熱費</label><input type="number" id="pUtil" class="priv" oninput="calculate()"></div>
+        <div><label>通信費</label><input type="number" id="pTel" class="priv" oninput="calculate()"></div>
+        <div><label>移動費</label><input type="number" id="pTrans" class="priv" oninput="calculate()"></div>
+        <div><label>食費</label><input type="number" id="pFood" class="priv" oninput="calculate()"></div>
+        <div><label>交際費</label><input type="number" id="pSocial" class="priv" oninput="calculate()"></div>
+        <div><label>趣味・娯楽費</label><input type="number" id="pHobby" class="priv" oninput="calculate()"></div>
+        <div><label>貯金</label><input type="number" id="pSave" class="priv" oninput="calculate()"></div>
+        <div><label>その他</label><input type="number" id="pOther" class="priv" oninput="calculate()"></div>
     </div>
-
-    <div class="summary-box">年間推定事業所得: <span id="annualBizIncome">0</span> 円</div>
 
     <button onclick="calculate()">計算して表示</button>
     <div class="disclaimer">※入力データは一切収集されません。</div>
@@ -55,22 +62,22 @@
     let taxChartInstance = null;
 
     function calculate() {
-        // 月額取得
-        const mRev = parseInt(document.getElementById('mRevenue').value) || 0;
-        const mExp = parseInt(document.getElementById('mExpenses').value) || 0;
-        const mSpending = (parseInt(document.getElementById('mFood').value) || 0) +
-                          (parseInt(document.getElementById('mUtil').value) || 0) +
-                          (parseInt(document.getElementById('mHobby').value) || 0) +
-                          (parseInt(document.getElementById('mOther').value) || 0);
+        // 事業経費合計
+        const bizInputs = document.querySelectorAll('.biz');
+        let mBizExp = 0;
+        bizInputs.forEach(input => mBizExp += parseInt(input.value) || 0);
 
-        // 年額換算
+        // 生活支出合計
+        const privInputs = document.querySelectorAll('.priv');
+        let mPrivExp = 0;
+        privInputs.forEach(input => mPrivExp += parseInt(input.value) || 0);
+
+        // 売上は仮に設定（例として入力欄を作る場合は追加してください）
+        const mRev = 500000; // ここを動的にしたい場合は入力欄を追加してください
         const rev = mRev * 12;
-        const exp = mExp * 12;
-        const lifeSpending = mSpending * 12;
+        const bizIncome = Math.max(0, rev - (mBizExp * 12));
 
-        const bizIncome = Math.max(0, rev - exp);
-        document.getElementById('annualBizIncome').textContent = bizIncome.toLocaleString();
-
+        const lifeSpending = mPrivExp * 12;
         const consTax = Math.floor(lifeSpending * (10 / 110)); 
         const soc = Math.floor(bizIncome * 0.15);
         const taxable = Math.max(0, bizIncome - soc - 480000);
@@ -80,13 +87,13 @@
 
         document.getElementById('resultSection').style.display = 'flex';
         document.getElementById('detailsList').innerHTML = `
-            <h3>年間収支（換算）</h3>
+            <h3>年間収支結果</h3>
             <div class="detail-item"><span>事業所得:</span> <span>${bizIncome.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>社会保険料(概算):</span> <span>${soc.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>所得税:</span> <span>${incomeTax.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>住民税:</span> <span>${resTax.toLocaleString()} 円</span></div>
             <div class="detail-item"><span>生活費消費税分:</span> <span>${consTax.toLocaleString()} 円</span></div>
-            <div class="detail-item"><strong>手残り資金:</strong> <strong>${remain.toLocaleString()} 円</strong></div>
+            <div class="detail-item"><strong>手残り:</strong> <strong>${remain.toLocaleString()} 円</strong></div>
         `;
 
         const ctx = document.getElementById('taxChart').getContext('2d');
@@ -94,7 +101,7 @@
         taxChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['社会保険料', '所得税', '住民税', '消費税(生活費分)', '手残り'],
+                labels: ['社会保険料', '所得税', '住民税', '消費税(生活費)', '手残り'],
                 datasets: [{ data: [soc, incomeTax, resTax, consTax, remain], backgroundColor: ['#3498db', '#f39c12', '#f1c40f', '#e74c3c', '#2ecc71'] }]
             }
         });
